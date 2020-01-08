@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-api" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-config-consumer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-config-provider" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-config-provider/src/main/resources/application.properties" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/qrcode-consumer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-eureka" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-gateway" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/qrcode-gateway/src/main/resources/application.properties" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/qrcode-provider" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-consumer" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-provider" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/user-provider/src/main/resources/application.yml" charset="GBK" />
+    <file url="PROJECT" charset="GBK" />
+  </component>
+</project>

@@ -1,0 +1,15 @@
+#spring:
+#  cloud:
+#    config:
+#      name: user-consumer  #需要从github上读取的资源名称，注意没有yml后缀名
+#      profile: dev   #本次访问的配置项  配置什么就从github取什么 dev  or   test
+#      label: master   #本微服务启动后先去找3344号服务，通过SpringCloudConfig获取GitHub的服务地址
+#      uri: http://localhost:9861
+
+spring:
+  cloud:
+    config:
+      name: user-consumer
+      profile: dev
+      label: master
+      uri: http://localhost:17851

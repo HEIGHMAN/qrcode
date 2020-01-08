@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/qrcode.iml" filepath="$PROJECT_DIR$/qrcode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/qrcode-api/qrcode-api.iml" filepath="$PROJECT_DIR$/qrcode-api/qrcode-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/qrcode-config-provider/qrcode-config-provider.iml" filepath="$PROJECT_DIR$/qrcode-config-provider/qrcode-config-provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/qrcode-eureka/qrcode-eureka.iml" filepath="$PROJECT_DIR$/qrcode-eureka/qrcode-eureka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/qrcode-gateway/qrcode-gateway.iml" filepath="$PROJECT_DIR$/qrcode-gateway/qrcode-gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/qrcode-provider/qrcode-provider.iml" filepath="$PROJECT_DIR$/qrcode-provider/qrcode-provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user-consumer/user-consumer.iml" filepath="$PROJECT_DIR$/user-consumer/user-consumer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user-provider/user-provider.iml" filepath="$PROJECT_DIR$/user-provider/user-provider.iml" />
+    </modules>
+  </component>
+</project>

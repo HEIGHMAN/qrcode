@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: qrcode-provider  #github上配置文件名，不能有.yml
+      profile: dev
+      lable: master
+      uri: http://localhost:17851

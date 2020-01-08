@@ -1,0 +1,7 @@
+spring:
+  cloud:
+    config:
+      name: user-provider
+      profile: dev
+      label: master
+      uri: http://localhost:17851

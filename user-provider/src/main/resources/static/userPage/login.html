@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>登录</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+      <!--验证码实现-->
+      <div class="jumbotron bg-success py-4">
+        <h2 class="display-4">Glory QRCode</h2>
+      </div>
+      <div id="login">
+        <div class="container-fluid">
+          <div class="col-lg-12 col-sm-12">
+            <div style="float: right;">
+              <form class="form mx-5" >
+                <h3 style="text-align: center;">登录</h3>
+                <div class="form-inline">
+                  <small id="helpId" class="text-muted">账号&nbsp;&nbsp;&nbsp;&nbsp;</small>
+                  <input type="text" class="form-control" placeholder="电话或邮箱" aria-describedby="helpId" v-model="username">
+                </div>
+                <br>
+                <div class="form-inline">
+                  <small id="helpId" class="text-muted">密码&nbsp;&nbsp;&nbsp;&nbsp;</small>
+                  <input type="password" name="" id="" class="form-control" placeholder="输入密码" aria-describedby="helpId" v-model="password">
+                </div>
+                <br>
+                <div class="form-inline">
+                  <small id="helpId" class="text-muted">验证码&nbsp;&nbsp;</small>
+                  <input type="text" name="" id="text" class="form-control" placeholder="验证码" aria-describedby="helpId" v-model="yzmText">
+                  &nbsp;&nbsp;
+                  <canvas id="canvas" width="120" height="40" @click="changeYzm"></canvas>
+                </div>
+                <!-- 信息错误提示 -->
+
+                <br>
+                <div v-if="nameAndPwdIsEmp">
+                  <p class="text-danger">账号和密码不能为空</p>
+                </div>
+                <div v-else>
+                  <div v-if="!nameAndPwdFormat">
+                      <p class="text-danger">账号和密码格式不正确</p>
+                  </div>
+                  <div v-else>
+                    <div v-if="yzmFlag" >
+                      <div v-if="!loginFlag">
+                        <p class="text-danger">账号或密码错误</p>
+                      </div>
+                    </div>
+                    <div v-else>
+                      <p class="text-danger">验证码错误</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <button class="btn btn-primary bg-success" @click="login">登录</button>
+                <a name="" id="" class="btn bg-warning" href="#" role="button" >忘记密码</a>
+                <a name="" id="" class="btn btn-primary" href="#" role="button">用户注册</a>
+              </form>
+            </div>
+          </div>
+
+          
+        </div>
+      </div>
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+  <script>
+    new Vue({
+      el:"#login",
+      data:{
+        nameAndPwdIsEmp:false,//验证码和密码为空
+        nameAndPwdFormat:true,//默认格式正确
+        yzmFlag:true,//验证码正确与否标志
+        loginFlag:true,//账号密码正确与否标志
+        username:"",//账号
+        password:"",//密码
+        yzmText:"",//验证码
+        yzm:"",
+        //验证码生成
+        canvas:null,
+        context:null,
+      },
+      methods:{
+        login:function(){
+          // 检查账号和密码是否为空
+          this.nameAndPwdIsEmp=false;
+          this.nameAndPwdFormat=true;
+          if(this.username.length==0||this.password.length==0){
+            this.nameAndPwdIsEmp=true;
+            return;
+          }
+          // 检查验证码是否正确
+          if(!(this.yzmText==this.yzm)){
+            this.yzmFlag=false;
+            return;
+          }
+          // 检查账号密码格式是否正确
+          name=this.username.split("[\w]+(\.[\w]+)*@[\w]+(\.[\w])+")//匹配邮箱
+          if(!(name[0]===this.username) || !this.password.includes(" ") || this.password.length >=6){
+            this.nameAndPwdFormat=false;
+            return;
+          }
+          
+
+          // 检查账号密码是否匹配
+          axios.post('/api/user/login',{
+            name:this.username,
+            password:this.password
+          })
+          .then(res => {
+            console.log(res)
+            if(res.data == null){
+              this.loginFlag=false;
+              return;
+            }
+            if(res.data.groupid==2)
+              axios.get('url',params)
+              .then(res => {
+                console.log(res)
+              })
+              .catch(err => {
+                console.error(err); 
+              })
+            else
+              i++;
+          })
+          .catch(err => {
+            console.error(err); 
+          })
+        },
+         // 随机颜色函数
+         getColor:function() {
+          var r = Math.floor(Math.random() * 256);
+          var g = Math.floor(Math.random() * 256);
+          var b = Math.floor(Math.random() * 256);
+          return "rgb(" + r + "," + g + "," + b + ")";
+        },
+        draw:function() {
+          this.context.strokeRect(0, 0, 120, 40);//绘制矩形（无填充）
+          var aCode = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", 
+                      "a", "b", "c", "d", "e", "f", "g",
+                      "h", "i", "j", "k", "l", "m", "n",
+                      "o", "p", "q", "r", "s", "t",
+                      "u", "v", "w", "x", "y", "z"];
+          // 绘制字母
+          var arr = [] //定义一个数组用来接收产生的随机数
+          for (var i = 0; i < 4; i++) {
+              var x = 20 + i * 20;//每个字母之间间隔20
+              var y = 20 + 10 * Math.random();//y轴方向位置为20-30随机
+              var index = Math.floor(Math.random() * aCode.length);//随机索引值
+              var txt = aCode[index];
+              this.context.font = "bold 20px 微软雅黑";//设置或返回文本内容的当前字体属性
+              this.context.fillStyle=this.getColor();//设置或返回用于填充绘画的颜色、渐变或模式，随机
+              this.context.translate(x,y);//重新映射画布上的 (0,0) 位置，字母不可以旋转移动，所以移动容器
+              var deg=90*Math.random()*Math.PI/180;//0-90度随机旋转
+              this.context.rotate(deg);// 	旋转当前绘图
+              this.context.fillText(txt, 0, 0);//在画布上绘制“被填充的”文本
+              this.context.rotate(-deg);//将画布旋转回初始状态
+              this.context.translate(-x,-y);//将画布移动回初始状态
+              arr[i] = txt //接收产生的随机数
+          }
+          this.yzm = arr[0] + arr[1] + arr[2] + arr[3] //将产生的验证码放入yzm
+          // 绘制干扰线条
+          for (var i = 0; i < 8; i++) {
+            this.context.beginPath();//起始一条路径，或重置当前路径
+            this.context.moveTo(Math.random() * 120, Math.random() * 40);//把路径移动到画布中的随机点，不创建线条
+            this.context.lineTo(Math.random() * 120, Math.random() * 40);//添加一个新点，然后在画布中创建从该点到最后指定点的线条
+            this.context.strokeStyle=this.getColor();//随机线条颜色
+            this.context.stroke();// 	绘制已定义的路径
+          }
+          // 绘制干扰点，和上述步骤一样，此处用长度为1的线代替点
+          for (var i = 0; i < 20; i++) {
+            this.context.beginPath();
+            var x = Math.random() * 120;
+            var y = Math.random() * 40;
+            this.context.moveTo(x, y);
+            this.context.lineTo(x + 1, y + 1);
+            this.context.strokeStyle=this.getColor();
+            this.context.stroke();
+          }
+        },
+        changeYzm:function(){
+          this.context.clearRect(0, 0, 120, 40);//在给定的矩形内清除指定的像素
+          this.draw();
+          //更新验证码标志
+          this.yzmFlag=true;
+          this.yzmText=""
+        },
+
+      },
+      mounted(){
+        this.canvas=document.getElementById("canvas");
+        this.context=this.canvas.getContext("2d")
+        this.draw();
+      },
+    })
+  </script>
+</html>

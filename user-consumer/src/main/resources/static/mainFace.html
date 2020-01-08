@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+   
+    <title>用户篇</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Main CSS-->
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <!-- Font-icon css-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body class="app sidebar-mini">
+    <!-- Navbar-->
+    <div id="query">
+      <header class="app-header"><a class="app-header__logo" href="index.html">QRCode</a>
+        <a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
+        <!-- User Menu-->
+        <ul class="app-nav">
+          <li class="dropdown"><a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Open Profile Menu"><i class="fa fa-user fa-lg"></i></a>
+            <ul class="dropdown-menu settings-menu dropdown-menu-right">
+              <li><a class="dropdown-item" href="login.html" @click="userExit"><i class="fa fa-sign-out fa-lg"></i> log out</a></li>
+            </ul>
+          </li>
+        </ul>
+      </header>
+      <!-- Sidebar menu-->
+      <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+      <aside class="app-sidebar">
+        <!-- 用户数据显示 -->
+        <div class="app-sidebar__user"><img class="app-sidebar__user-avatar" src="https://s3.amazonaws.com/uifaces/faces/twitter/jsa/48.jpg" alt="User Image">
+          <div>
+            <p class="app-sidebar__user-name">{{username}}</p>
+            <p class="app-sidebar__user-designation">Frontend Developer</p>
+          </div>
+        </div>
+        <ul class="app-menu">
+          <li><a class="app-menu__item" :class={active:pageFlag[0]} href="#" @click="menuPage(0)"><i class="app-menu__icon fa fa-pie-chart"></i><span class="app-menu__label">二维码查询</span></a></li>
+          <li><a class="app-menu__item" :class={active:pageFlag[1]} href="#" @click="menuPage(1)"><i class="app-menu__icon fa fa-dashboard"></i><span class="app-menu__label">个人历史</span></a></li>
+          <li><a class="app-menu__item" :class={active:pageFlag[2]} href="#" @click="menuPage(2)"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">修改密码</span></a></li>
+        </ul>
+      </aside>
+      <main class="app-content">
+        <div class="app-title">
+          <div>
+            <h1><i class="fa fa-th-list"></i> Data Table</h1>
+            <p>Table to display analytical data effectively</p>
+          </div>
+          <!-- <ul class="app-breadcrumb breadcrumb side">
+            <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>
+            <li class="breadcrumb-item">Tables</li>
+            <li class="breadcrumb-item active"><a href="#">Data Table</a></li>
+          </ul> -->
+        </div>
+        <div v-if="pageFlag[0]">
+          <div class="row">
+            <div class="row">
+              <div class="col-md-12">
+                  <div id="find" class="tab-pane active" style="margin-left: 300px">
+                    <div class="form-inline my-4">
+                      <input type="text" class="form-control" name="qrcode" aria-describedby="helpId" v-model="qrUrl" placeholder="请输入链接">
+                      <button type="button" class="btn btn-warning mx-3" id="btnRk" @click="changeRemark">备注</button>
+                    </div>
+                    <div v-if="showRemark">
+                      <textarea class="form-control my-2" placeholder="备注" name="" id="remark" rows="3" v-model="remark"></textarea>
+                    </div>
+                    <div v-if="qrUrlIsError">
+                      <p>链接不合法，请检查</p>
+                    </div>
+                    <button type="button" name="" id="" class="btn btn-primary btn-lg btn-block" @click="myQuery">确定</button>
+      
+                    <!-- 二维码显示 -->
+                    <div v-if="qrCodeShow">
+                      <div class="my-3" id="showQR" style="height: 200px;width: 200px; border: palegoldenrod; border-style: solid;">
+                        <!-- <img src="1576913376572.png" class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}" id="qrImage" alt=""> -->
+                        <img :src="qrImageSrc" class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}" id="qrImage" alt="">
+                      </div>
+                      <button type="button" class="btn btn-primary" id="downQR" @click="downloadImage">下载到本地</button>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="pageFlag[1]">
+          <div class="col-md-12">
+            <div class="tile">
+              <div class="tile-body">
+                <div class="table-responsive">
+                  <table class="table table-hover table-bordered" id="sampleTable">
+                    <thead>
+                      <tr>
+                        <th>编号</th>
+                        <th>链接</th>
+                        <th>备注</th>
+                        <th>时间</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody v-for="(t, i) in historyLogs" :key="i">
+                      <tr>
+                          <td><h4>{{nowPage*size+i+1}}</h4></td>
+                          <td scope="row"><a class="nav-link" :href=model1[i] target="_blank" data-toggle="modal" rel="noopener noreferrer" @click="addQrLog(t.qrId)">{{t.url}}</a></td>
+                          <td>{{t.remark}}</td>
+                          <td>{{t.time}}</td>
+                          <td>
+                            <button type="button" class="btn btn-primary" data-toggle="modal" :data-target=model2[i]>修改备注</button>
+                            <button type="button" class="btn btn-warning" @click="delHistory(i)">删除记录</button>
+                          </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <!-- 分页 -->
+                  <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                          <span aria-hidden="true">&laquo;</span>
+                          <span class="sr-only">Previous</span>
+                        </a>
+                      </li>
+                      <li class="page-item" v-for="(item, index) in sumPage" :key="index">
+                        <button type="button" class="btn btn-primary" :disabled="flagPage[index]" @click="changePage(index)">{{index+1}}</button>
+                      </li>
+                      <li class="page-item">
+                        <a class="page-link" href="#" aria-label="Next">
+                          <span aria-hidden="true">&raquo;</span>
+                          <span class="sr-only">Next</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
+                   <!-- 二维码弹框 -->
+                  <div v-for="(item, index) in historyLogs" :key="index">
+                      <div class="modal active" :id="model1[index].substr(1)" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                          <div class="modal-header">
+                              <h5 class="modal-title">{{item.url}}</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                              </button>
+                          </div>
+                          <div class="modal-body">
+                              <div class="my-3" id="showQR" style="height: 200px;width: 200px; border: palegoldenrod; border-style: solid;">
+                              <img :src="item.address" class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}" id="modelQrImage" alt="">
+                              </div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-primary" id="downQR" @click="downloadImage(index)">下载到本地</button>
+                          </div>
+                          </div>
+                      </div>
+                      </div>
+                       <!-- 修改备注 -->
+                      <div class="modal fade" :id="model2[index].substr(1)" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                  <div class="modal-header">
+                                      <h5 class="modal-title">{{item.url}}修改备注</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                      </button>
+                                  </div>
+                                  <div class="modal-body">
+                                      <div class="form-group">
+                                      <textarea class="form-control" name="" id="" rows="3" v-model="updateRemark">{{item.remark}}</textarea>
+                                      </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                                      <button type="button" class="btn btn-primary" @click="updateRk(index)">确定</button>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="pageFlag[2]">
+          <div class="row">
+            <div class="col-md-12">
+                <div>
+                    <h3>改密码</h3>
+                    <div class="form-inline">
+                    <label id="helpId" class="text-muted">账号&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                    <input type="text" name="" id="" class="form-control" placeholder="邮箱或电话" aria-describedby="helpId" v-model="username" @keydown="reflash">
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label id="helpId" class="text-muted">密码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                    <input type="password" name="" id="" class="form-control" placeholder="6到15位字符串" aria-describedby="helpId" v-model="password" @keydown="reflash">
+                </div>
+                <br>
+                <div class="form-inline">
+                    <label id="helpId" class="text-muted">新密码&nbsp;&nbsp;</label>
+                    <input type="password" name="" id="" class="form-control" placeholder="" aria-describedby="helpId" v-model="newPassword" @keydown="reflash">
+                </div>
+                <br>
+                    <!-- <div class="text-danger">
+                        <div v-if="usernameIsError">
+                        <p>账号错误</p>
+                        </div>
+                        <div v-else>
+                        <div v-if="passwordIsError">
+                            <p>原密码错误</p>
+                        </div>
+                        <div v-else>
+                            <div v-if="newPasswordIsError">
+                            <p>新密码格式错误</p>
+                            </div>
+                        </div>
+                        </div>
+                    </div> -->
+                    <button type="submit" class="btn btn-primary" @click="myRePwd">提交</button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <!-- Essential javascripts for application to work-->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/main.js"></script>
+    <!-- The javascript plugin to display page loading on top-->
+    <script src="js/plugins/pace.min.js"></script>
+    <!-- Page specific javascripts-->
+    <!-- Data table plugin-->
+    <script type="text/javascript" src="js/plugins/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="js/plugins/dataTables.bootstrap.min.js"></script>
+    <!-- Google analytics script-->
+    <script type="text/javascript">
+      if(document.location.hostname == 'pratikborsadiya.in') {
+      	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      	ga('create', 'UA-72504830-1', 'auto');
+      	ga('send', 'pageview');
+      }
+      new Vue({
+          el:"#query",
+          data:{
+            pageFlag:[true,false,false],
+            username:"",
+            userId:"",
+            qrUrl:"",
+            remark:"",
+            qrImageSrc:"",
+            qrUrlIsError:false,
+            qrCodeShow:false,
+            showRemark:false,
+
+            //日志
+            historyLogs:[],
+            model1:[],
+            idModel1:[],
+            model2:[],
+            idModel2:[],
+            firstQueryHistory:true,
+            logCount:0,
+            //分页查找操作
+            size:10,//每页显示的数据条数
+            start:0,//数据的索引
+            sumPage:[],
+            flagPage:[],
+            nowPage:0,
+            showRemark:false,//显示备注输入框标志
+            qrUrlIsError:false,//url链接是否合法
+            qrCodeShow:false,//显示二维码
+            updateRemark:"",
+
+            //修改密码
+            password:"",
+            newPassword:"",
+            usernameIsError:false,
+            passwordIsError:false,
+            newPasswordIsError:false,
+           
+          },
+          methods:{
+            menuPage:function(k){
+              fg=[]
+              for(i=0;i<this.pageFlag.length;i++)
+                fg.push(i==k?true:false);
+              this.pageFlag=fg;
+              console.log(this.pageFlag)
+            },
+            //用户退出
+            userExit:function(){
+              axios.put(`/user/api/user/exit`)
+              .then(res => {
+                console.log(res)
+                setTimeout(window.location.href="/user/login",1000);
+              })
+              .catch(err => {
+                console.error(err); 
+              })
+            },
+            changeRemark:function(){
+                this.showRemark=true
+            },
+            myQuery:function(){
+                this.qrUrlIsError=false;
+                if(""==this.qrUrl || this.qrUrl.includes(" ")){
+                    this.qrUrlIsError=true;
+                    return
+                }
+                // 检查链接及提交给服务器并显示二维码
+                this.qrCodeShow=true;
+                console.log(this.remark);
+                axios.post('/user/api/qr/addQR',{
+                    userId:this.userId,
+                    url:this.qrUrl,
+                    remark:this.remark
+                })
+                .then(res => {
+                    console.log(res)
+                    setTimeout(this.qrImageSrc=res.data,1000);
+                    this.logCount++;
+                })
+                .catch(err => {
+                    console.error(err); 
+                })
+            },
+            //下载二维码图片
+            downloadImage:function(){
+          
+            },
+
+            //二维码日志
+            //在日志记录中点击链接插入日志记录
+            addQrLog:function(qrId){
+                axios.post(`/user/api/qr/aQL?userId=${this.userId}&qrId=${qrId}`)
+                .then(res => {
+                    console.log(res)
+                    this.logCount++;
+                    this.pageFunc();
+                })
+                .catch(err => {
+                    console.error(err); 
+                })
+            },
+            delHistory:function(i){
+                //删除该条记录
+                axios.put(`/user/api/qr/del?userId=${this.userId}&id=${this.historyLogs[i].userId}`)
+                .then(res => {
+                    console.log(res)
+                    //删除数据
+                    this.logCount--;//总数减一
+                    this.historyLogs.splice(i,1)
+                    if(this.historyLogs.length==0&&this.nowPage>=this.logCount/this.size){
+                      this.nowPage--;
+                      this.changePage(this.nowPage);
+                    }
+                    this.pageFunc();           
+                })
+                .catch(err => {
+                    console.error(err);
+                })
+            },
+            
+            updateRk:function(index){
+                //更改备注
+                axios.put(`/user/api/qr/upRk?userId=${this.userId}&qLId=${this.historyLogs[index].userId}&remark=${this.historyLogs[index].remark}&newRemark=${this.updateRemark}`)
+                .then(res => {
+                    console.log(res)
+                    alert("修改成功")
+                    this.historyLogs[index].remark=this.updateRemark
+                })
+                .catch(err => {
+                    console.error(err); 
+                })
+            },
+            changeRemark:function(){
+              this.showRemark=true
+            },
+            //个人历史
+            selfHistory:function(){
+              if(this.firstQueryHistory){
+                this.firstQueryHistory=false
+                this.getHistoryLog();
+              }
+            },
+            getHistoryLog:function(){
+              //  获取历史记录
+              axios.get(`/user/api/qr/history/${this.userId}?start=${this.start}&size=${this.size}`)
+              .then(res => {
+                console.log(res)
+                this.historyLogs=res.data;
+                for(i=0;i< this.historyLogs.length;i++){
+                  this.model1.push("#model1_"+i);
+                  this.idModel1.push("model1_"+i)
+                  this.model2.push("#model2_"+i);
+                  this.idModel2.push("model2_"+i);
+                }
+                
+                console.log(this.historyLogs)
+              })
+              .catch(err => {
+                console.error(err); 
+              })
+            },
+            pageFunc:function(){
+              let sum= this.logCount / this.size;
+              this.sumPage=[]
+              this.flagPage=[]
+              for(i=0;i<sum;i++){
+                this.sumPage.push(i);
+                this.flagPage.push(false);
+              }
+              if(this.flagPage.length>0)
+                this.flagPage[this.nowPage]=true  
+            },
+            getHistoryLogCount:function(){
+              axios.get(`/user/api/qr/count?userId=${this.userId}`)
+              .then(res => {
+                console.log(res)
+                this.logCount = res.data;
+                this.pageFunc();
+              })
+              .catch(err => {
+                console.error(err); 
+              })
+            },
+            //分页操作
+            changePage:function(index){ 
+              //  获取历史记录
+              axios.get(`/user/api/qr/history/${this.userId}?start=${index*this.size}&size=${this.size}`)
+              .then(res => {
+                console.log(res)
+                this.historyLogs=res.data;
+                for(i=0;i< this.historyLogs.length;i++){
+                  this.model1.push("#model1_"+i);
+                  this.idModel1.push("model1_"+i)
+                  this.model2.push("#model2_"+i);
+                  this.idModel2.push("model2_"+i);
+                }
+                this.flagPage[this.nowPage]=false;
+                this.flagPage[index]=true;
+                this.nowPage=index;
+                console.log(this.historyLogs)
+              })
+              .catch(err => {
+                console.error(err); 
+              })
+            },
+            
+            //修改密码
+            reflash:function(){
+                this.newPasswordIsError=false;
+                this.passwordIsError=false;
+                this.newPasswordIsError=false;
+            },
+            myRePwd:function(){
+              // if(this.username != this.reUsername){
+              //   this.newPasswordIsError=true;
+              //   return;
+              // }
+              // if(this.password.length <6){
+              //   this.passwordIsError = true;
+              //   return;
+              // }
+              // if(this.newPassword.length<6){
+              //   console.log(this.newPassword)
+              //   this.newPasswordIsError = true;
+              //   return;
+              // }
+              axios.put(`/user/api/user/rePwd?username=${this.username}&password=${this.password}&newPassword=${this.newPassword}`)
+              .then(res => {
+                console.log(res)
+                if(res.data==false){
+                  // passwordIsError = true;
+                  alert("原密码错误")
+                }else{
+                  alert("密码更改成功");
+                }
+              })
+              .catch(err => {
+                console.error(err); 
+              })
+            },
+          },
+          mounted(){
+            // url=location.href;
+            // console.log(url);
+            // strs=url.split("/");
+            // // this.baseUrl=strs[0]+"//"+strs[2]+"/"+strs[3]+"/";
+            // // console.log("baseUrl: "+this.baseUrl);
+            // let num=url.indexOf('=');
+            // this.username=url.substr(num+1);
+
+            // //获取用户信息
+            // axios.get(`/user/api/user/info/${this.username}`)
+            // .then(res => {
+            //     console.log(res)
+            //     this.userId=res.data.id;
+            //     this.getHistoryLogCount();
+            //     this.getHistoryLog();
+            // })
+            // .catch(err => {
+            //     console.error(err);
+            // })
+            axios.get(`/user/api/user/getUser`)
+            .then(res => {
+                console.log(res)
+                if(res.data != ""){
+                  this.userId=res.data.id;
+                  this.username=res.data.username;
+                  this.getHistoryLogCount();
+                  this.getHistoryLog();
+                }else{
+                  alert("您还未登录，请先登录")
+                  setTimeout(window.location.href="/user/login",1000);
+                }
+
+            })
+            .catch(err => {
+                console.error(err);
+            })
+            // axios.get('/user/api/user/cUser')
+            // .then(res => {
+            // console.log(res)
+            // })
+            // .catch(err => {
+            // console.error(err); 
+            // })
+          }
+      })
+
+    </script>
+  </body>
+</html>
